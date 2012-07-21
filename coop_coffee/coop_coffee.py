@@ -13,7 +13,7 @@ colors = []
 
 for row in data:
 
-    name = row[3].lower()
+    name = row[2].lower()
     
     if 'pièces' in name or \
        'portions' in name or \
