@@ -14,7 +14,7 @@ categories['pieces'] = [row for row in data if re.search("pièces|portions|sache
 categories['instant'] = [row for row in data if re.search("soluble|instant", row[2], re.IGNORECASE)]
 categories['grains'] = [row for row in data if re.search("grains", row[2], re.IGNORECASE)]
 categories['grinded'] = [row for row in data if re.search("moulu", row[2], re.IGNORECASE)]
-categories['misc'] = set(data) - set([row for rows in categories.values() for row in rows])
+categories['misc'] = set(data) - set(sum(categories.values(), []))
 
 pyplot.gca().set_color_cycle(['lightGray', 'red', 'blue', 'green', 'yellow'])
 
