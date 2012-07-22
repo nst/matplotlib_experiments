@@ -1,54 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from numpy import genfromtxt
 from matplotlib import pyplot
-from pylab import Rectangle
+import numpy
+import re
 
-data = genfromtxt('coop_coffee.csv', dtype=None, delimiter='\t')
+data = numpy.recfromcsv('coop_coffee.csv', delimiter='\t')
 
-x = []
-y = []
-colors = []
+cat_names = ('misc', 'pieces', 'instant', 'grains', 'grinded')
+categories = dict((name, []) for name in cat_names)
 
-for row in data:
+categories['pieces'] = [row for row in data if re.search("pièces|portions|sachet|capsule|nescafé dolce gusto", row[2], re.IGNORECASE)]
+categories['instant'] = [row for row in data if re.search("soluble|instant", row[2], re.IGNORECASE)]
+categories['grains'] = [row for row in data if re.search("grains", row[2], re.IGNORECASE)]
+categories['grinded'] = [row for row in data if re.search("moulu", row[2], re.IGNORECASE)]
+categories['misc'] = set(data) - set([row for rows in categories.values() for row in rows])
 
-    name = row[2].lower()
+pyplot.gca().set_color_cycle(['lightGray', 'red', 'blue', 'green', 'yellow'])
+
+for name in cat_names:
+    rows = categories[name]
+    x = [r[0] for r in rows]
+    y = [r[1] for r in rows]
     
-    if 'pièces' in name or \
-       'portions' in name or \
-       'sachet' in name or \
-       'capsule' in name or \
-       'Nescafé Dolce Gusto' in name:
-        colors.append('yellow')
-    elif 'soluble' in name or 'instantané' in name:
-        colors.append('red')
-    elif 'grains' in name:
-        colors.append('green')
-    elif 'moulu' in name:
-        colors.append('brown')
-    else:
-        colors.append('lightGray')
-    
-    x.append(row[0]) # price
-    y.append(row[1]) # weight
+    label = "%s (%d)" % (name, len(rows))
+    pyplot.plot(x, y, marker='o', alpha=0.75, linestyle='none', label=label)
 
 pyplot.title("Coffee, Coop, July 2012")
 pyplot.xlabel("Price [CHF]")
 pyplot.ylabel("Weight [Kg]")
-
-sct = pyplot.scatter(x, y, marker='o', color=colors)
-sct.set_alpha(0.25)
-
-p1 = Rectangle((0, 0), 1, 1, fc="yellow")
-p2 = Rectangle((0, 0), 1, 1, fc="red")
-p3 = Rectangle((0, 0), 1, 1, fc="green")
-p4 = Rectangle((0, 0), 1, 1, fc="brown")
-pyplot.legend((p1, p2, p3, p4), ('pieces','instant','grains','grinded'), loc="right")
-
 pyplot.ylim(0, 1.05)
 pyplot.xlim(0, 21)
-
 pyplot.grid()
+pyplot.legend(numpoints=1, loc="right")
 
 pyplot.savefig('coop_coffee.png')
